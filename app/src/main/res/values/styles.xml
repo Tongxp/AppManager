@@ -10,4 +10,11 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="FullScreenVideoTheme" parent="AppTheme">
+        <item name="windowNoTitle">false</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
 </resources>

@@ -26,8 +26,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuItemCompat;
 
 import com.zhou.appmanager.MyAdapter.AppInfoAdapter;
+import com.zhou.appmanager.activity.MessageActivity;
+import com.zhou.appmanager.core.AMApplication;
+import com.zhou.appmanager.core.ChatManager;
 import com.zhou.appmanager.model.AppInfo;
 import com.zhou.appmanager.util.AppUtil;
+import com.zhou.appmanager.util.MessageUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -35,10 +39,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
+
+import io.agora.rtm.ErrorInfo;
+import io.agora.rtm.ResultCallback;
+import io.agora.rtm.RtmClient;
 
 public class MainActivity extends AppCompatActivity {
     //支付宝个人收款码
-    private static final String alipay_person_qr = "HTTPS://QR.ALIPAY.COM/FKX03040WLPHIWRHMSGXD6";
+    private static final String alipay_person_qr = "https://qr.alipay.com/fkx15162b9anoefd3ddrt98";
+
+    private final String TAG = MainActivity.class.getSimpleName();
+
+    private String mUserId;
+
+    private RtmClient mRtmClient;
 
     private ListView listView;
     private LinearLayout ll_loading;
@@ -55,7 +70,9 @@ public class MainActivity extends AppCompatActivity {
     private int sortByPermissions = 1;
     private int sortByAPKSize = 1;
     private int sortByALLSize = 1;
+    private int communication = 1;
     private AppInfoAdapter appInfoAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,9 +86,15 @@ public class MainActivity extends AppCompatActivity {
         //        .into(gif_loading);
         ll_loading.setVisibility(View.VISIBLE);
 
+        int nextInt = (int) (Math.random()*1000);
+        mUserId = "20" + nextInt;
+
         //申请权限
         AppUtil.requestPermissions(this);
         new Thread(runnable).start();
+
+        ChatManager mChatManager = AMApplication.the().getChatManager();
+        mRtmClient = mChatManager.getRtmClient();
 
     }
 
@@ -79,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
+
             long datainitstart = SystemClock.currentThreadTimeMillis();
             //获取已安装的app信息
             userAppInfos = AppUtil.getAppInfo(AppUtil.USER_APP, MainActivity.this);
@@ -553,6 +577,14 @@ public class MainActivity extends AppCompatActivity {
                     MainActivity.this.startActivity(intent);
                 }
                 break;
+            case R.id.communication:
+
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                jumpToMessageActivity();
             case R.id.exit:
                 finish();
                 System.exit(0);
@@ -568,5 +600,29 @@ public class MainActivity extends AppCompatActivity {
         ComponentName componentName = intent.resolveActivity(context.getPackageManager());
         return componentName != null;
     }
+
+    private void jumpToMessageActivity() {
+        Intent intent = new Intent(this, MessageActivity.class);
+        intent.putExtra(MessageUtil.INTENT_EXTRA_IS_PEER_MODE, false);
+        intent.putExtra(MessageUtil.INTENT_EXTRA_TARGET_NAME, "appManagerRoom");
+        intent.putExtra(MessageUtil.INTENT_EXTRA_USER_ID, mUserId);
+        startActivityForResult(intent, 1);
+    }
+
+
+    /**
+     * API CALL: logout from RTM server
+     */
+    private void doLogout() {
+        mRtmClient.logout(null);
+        MessageUtil.cleanMessageListBeanList();
+    }
+
+
+    private void showToast(String text) {
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+    }
+
+
 
 }
