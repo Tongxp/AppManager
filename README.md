@@ -6,6 +6,13 @@
 
 在首页直接展示App列表,在应用菜单中可以选择在线交流功能，与其他软件使用者对软件的存在的问题进行讨论和吐槽。
 在线交流功能使用了声网中的实时消息SDK实现。
+
+项目成员
+Tongxp
+
+联系
+qq 2687656795
+
 如图所示：
 ![app1](http://cdn.suchuankeji.top/app1.jpg)
 ![app1](http://cdn.suchuankeji.top/app2.jpg)
